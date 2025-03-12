@@ -1,0 +1,145 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: white;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.profile-image {
+    width: 160px; /* Increased size */
+    height: 160px; /* Increased size */
+    border-radius: 50%;
+    border: 6px solid #00b894; /* Adjusted border size */
+    padding: 6px; /* Adjusted padding */
+    overflow: hidden;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-info {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.bio-container {
+    max-width: 500px;
+}
+
+#bio {
+    color: #cccccc;
+    transition: all 0.3s ease;
+}
+
+#readMoreBtn {
+    background: none;
+    border: none;
+    color: #999999;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#readMoreBtn:hover {
+    color: white;
+}
+
+.social-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 2rem;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #2a2a2a;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.social-link:hover {
+    background-color: #333333;
+}
+
+.icon-container {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.instagram .icon-container {
+    background: linear-gradient(to right top, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+}
+
+.linkedin .icon-container {
+    background-color: #0077b5;
+}
+
+.facebook .icon-container {
+    background-color: #1877f2;
+}
+
+.telegram .icon-container {
+    background-color: #0088cc;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding-top: 2rem;
+    font-size: 0.875rem;
+    color: #999999;
+}
+
+footer a {
+    color: #999999;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: white;
+}
+
+@media (max-width: 600px) {
+    .social-links {
+        grid-template-columns: 1fr;
+    }
+}
