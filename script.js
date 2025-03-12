@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Check if device is mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     // Bio expansion functionality
     const bioElement = document.getElementById("bio");
     const readMoreBtn = document.getElementById("readMoreBtn");
@@ -153,8 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
         tag.classList.add("animate__animated", "animate__fadeInUp");
     });
     
-    // Animate background elements on mouse move
-    document.addEventListener("mousemove", (e) => {
+    // Function to handle mouse move for background animation
+    function handleMouseMove(e) {
         const mouseX = e.clientX / window.innerWidth;
         const mouseY = e.clientY / window.innerHeight;
         
@@ -162,39 +165,64 @@ document.addEventListener("DOMContentLoaded", () => {
         const bg2 = document.getElementById("bg-element-2");
         const bg3 = document.getElementById("bg-element-3");
         
-        bg1.style.transform = `translate(${mouseX * 20}px, ${mouseY * 20}px)`;
-        bg2.style.transform = `translate(${-mouseX * 20}px, ${-mouseY * 20}px)`;
-        bg3.style.transform = `translate(${mouseX * -15}px, ${mouseY * 15}px)`;
-    });
-    
-    // Add typing animation to profession
-    const profession = document.querySelector(".profession");
-    const professionText = profession.textContent;
-    profession.textContent = "";
-    
-    function typeWriter(text, element, i = 0) {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(() => typeWriter(text, element, i), 100);
+        if (bg1 && bg2 && bg3) {
+            bg1.style.transform = `translate(${mouseX * 20}px, ${mouseY * 20}px)`;
+            bg2.style.transform = `translate(${-mouseX * 20}px, ${-mouseY * 20}px)`;
+            bg3.style.transform = `translate(${mouseX * -15}px, ${mouseY * 15}px)`;
         }
     }
     
-    // Start typing animation after a delay
-    setTimeout(() => {
-        typeWriter(professionText, profession);
-    }, 1000);
+    // Only add mousemove listener for non-mobile devices
+    if (!isMobile) {
+        document.addEventListener("mousemove", handleMouseMove);
+    } else {
+        // Simplify background animations on mobile for better performance
+        const bgElements = document.querySelectorAll('.bg-element');
+        bgElements.forEach(el => {
+            // Keep the animation but make it lighter
+            el.style.animationDuration = '30s';
+            el.style.opacity = '0.1';
+        });
+    }
+    
+    // Add typing animation to profession
+    const profession = document.querySelector(".profession");
+    if (profession) {
+        const professionText = profession.textContent;
+        profession.textContent = "";
+        
+        function typeWriter(text, element, i = 0) {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(() => typeWriter(text, element, i), isMobile ? 50 : 100); // Faster typing on mobile
+            }
+        }
+        
+        // Start typing animation after a delay
+        setTimeout(() => {
+            typeWriter(professionText, profession);
+        }, isMobile ? 500 : 1000); // Shorter delay on mobile
+    }
     
     // Add hover effects to contact items
     const contactItems = document.querySelectorAll(".contact-item");
     contactItems.forEach(item => {
-        item.addEventListener("mouseover", () => {
-            item.querySelector("svg").style.transform = "scale(1.2)";
-        });
-        
-        item.addEventListener("mouseout", () => {
-            item.querySelector("svg").style.transform = "scale(1)";
-        });
+        const svg = item.querySelector("svg");
+        if (svg) {
+            if (!isMobile) {
+                item.addEventListener("mouseover", () => {
+                    svg.style.transform = "scale(1.2)";
+                });
+                
+                item.addEventListener("mouseout", () => {
+                    svg.style.transform = "scale(1)";
+                });
+            } else {
+                // Make tap targets larger on mobile
+                item.style.padding = '8px 0';
+            }
+        }
     });
 
     // Add click-to-copy functionality for contact info
@@ -202,20 +230,115 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailElement = document.getElementById("email");
     
     function createCopyTooltip(element, originalText) {
+        if (!element) return;
+        
         element.style.cursor = "pointer";
         element.title = "Click to copy";
         
         element.addEventListener("click", () => {
             const textToCopy = element.textContent;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                element.textContent = "Copied!";
-                setTimeout(() => {
-                    element.textContent = originalText;
-                }, 2000);
+                // Create temporary tooltip for mobile feedback
+                if (isMobile) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'mobile-copy-tooltip';
+                    tooltip.textContent = 'Copied!';
+                    tooltip.style.cssText = `
+                        position: fixed;
+                        bottom: 20%;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background-color: var(--primary-color);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        z-index: 1000;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    `;
+                    document.body.appendChild(tooltip);
+                    
+                    // Show and hide the tooltip
+                    setTimeout(() => {
+                        tooltip.style.opacity = '1';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        tooltip.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(tooltip);
+                        }, 300);
+                    }, 2000);
+                } else {
+                    element.textContent = "Copied!";
+                    setTimeout(() => {
+                        element.textContent = originalText;
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
             });
         });
     }
     
-    createCopyTooltip(mobileElement, mobileElement.textContent);
-    createCopyTooltip(emailElement, emailElement.textContent);
+    if (mobileElement) createCopyTooltip(mobileElement, mobileElement.textContent);
+    if (emailElement) createCopyTooltip(emailElement, emailElement.textContent);
+    
+    // Ensure modal is properly sized on different devices
+    function adjustModalForDevice() {
+        const modalContent = document.querySelector('.modal-content');
+        if (modalContent) {
+            if (window.innerHeight < 700) {
+                modalContent.style.maxHeight = '90vh';
+                modalContent.style.overflowY = 'auto';
+            } else {
+                modalContent.style.maxHeight = '';
+                modalContent.style.overflowY = '';
+            }
+        }
+    }
+    
+    // Call on load and resize
+    window.addEventListener('resize', adjustModalForDevice);
+    adjustModalForDevice();
+    
+    // Simplify tooltips for touch devices
+    if (isMobile) {
+        const socialLinks = document.querySelectorAll('.social-link');
+        socialLinks.forEach(link => {
+            const tooltip = link.getAttribute('data-tooltip');
+            if (tooltip) {
+                // Add tooltip as accessible description instead
+                link.setAttribute('aria-label', tooltip);
+            }
+        });
+    }
+    
+    // Add passive event listeners for better scrolling performance on mobile
+    const passiveEvents = ['touchstart', 'touchmove', 'touchend'];
+    passiveEvents.forEach(eventName => {
+        document.addEventListener(eventName, function() {}, { passive: true });
+    });
+    
+    // Handle orientation change specially for mobile devices
+    if (isMobile) {
+        window.addEventListener('orientationchange', function() {
+            // Small timeout to allow the browser to complete orientation change
+            setTimeout(function() {
+                adjustModalForDevice();
+                
+                // Re-adjust any elements that might need resizing
+                const profileSection = document.querySelector('.profile-section');
+                if (profileSection) {
+                    if (window.innerHeight < 500) {
+                        profileSection.style.padding = '1rem';
+                    } else {
+                        profileSection.style.padding = '';
+                    }
+                }
+            }, 300);
+        });
+    }
 });
